@@ -58,7 +58,22 @@ public record CardService(CardMapper cardMapper, CardRepository cardRepository, 
     @Override
     public ResponseDto<CardDto> update(Integer entityId, CardDto dto) {
         try {
-            return null;
+            Optional<Card> optional = this.cardRepository.findByCardIdAndDeleteAtIsNull(entityId);
+            if (optional.isEmpty()){
+                return ResponseDto.<CardDto>builder()
+                        .messege("Card is not found!")
+                        .code(-1)
+                        .build();
+            }
+            Card card = (Card) optional.get();
+            card.setUpdateAt(LocalDateTime.now());
+            this.cardMapper.updateFromCard(dto, card);
+            this.cardRepository.save(card);
+            return ResponseDto.<CardDto>builder()
+                    .success(true)
+                    .messege("OK")
+                    .data(this.cardMapper.toDto(card))
+                    .build();
         }catch (Exception e){
             return ResponseDto.<CardDto>builder()
                     .messege(String.format("Card while saving error %s", e.getMessage()))
@@ -69,7 +84,20 @@ public record CardService(CardMapper cardMapper, CardRepository cardRepository, 
 
     @Override
     public ResponseDto<CardDto> delete(Integer entityId) {
-        return null;
+        Optional<Card> optional = this.cardRepository.findByCardIdAndDeleteAtIsNull(entityId);
+        if (optional.isEmpty()){
+            return ResponseDto.<CardDto>builder()
+                    .messege("Card is not found!")
+                    .code(-1)
+                    .build();
+        }
+        Card card = (Card) optional.get();
+        card.setDeleteAt(LocalDateTime.now());
+        this.cardRepository.save(card);
+        return ResponseDto.<CardDto>builder()
+                .success(true)
+                .messege("OK")
+                .data(this.cardMapper.toDto(card))
+                .build();
     }
-
 }

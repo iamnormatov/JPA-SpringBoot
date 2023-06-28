@@ -6,7 +6,6 @@ import com.example.jpa.dto.UserDto;
 import com.example.jpa.model.User;
 import com.example.jpa.repository.UserRepository;
 import com.example.jpa.service.mapper.UserMapper;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

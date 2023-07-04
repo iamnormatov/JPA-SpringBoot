@@ -21,39 +21,13 @@ public abstract class CardMapper {
     @Mapping(target = "deleteAt", ignore = true)
     public abstract Card toEntity(CardDto dto);
 
+
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "userDto", ignore = true)
     public abstract CardDto toDto(Card card);
 
     @Mapping(target = "user", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public abstract void updateFromCard(CardDto dto, @MappingTarget Card card);
 
-//
-//    public Card toEntity(CardDto dto) {
-//        Card card = new Card();
-//        card.setCardName(dto.getCardName());
-//        card.setCardNumber(dto.getCardNumber());
-//        card.setAmount(dto.getAmount());
-//        card.setType(dto.getType());
-//        card.setUserId(dto.getUserId());
-//        return card;
-//    }
-//
-//    public CardDto toDto(Card card) {
-//        return CardDto.builder()
-//                .cardId(card.getCardId())
-//                .cardName(card.getCardName())
-//                .cardNumber(card.getCardNumber())
-//                .amount(card.getAmount())
-//                .type(card.getType())
-//                .userId(card.getUserId())
-//                .userDto(this.userService.get(card.getUserId()).getData())
-//                .createAt(card.getCreateAt())
-//                .updateAt(card.getUpdateAt())
-//                .deleteAt(card.getDeleteAt())
-//                .build();
-//    }
-//
-//    public void updateFromCard(CardDto dto, Card card) {
-//        return;
-//    }
 }

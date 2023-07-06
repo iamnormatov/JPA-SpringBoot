@@ -4,6 +4,7 @@ import com.example.jpa.dto.CardDto;
 import com.example.jpa.dto.ResponseDto;
 import com.example.jpa.dto.SimpleCRUD;
 import com.example.jpa.service.CardService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +15,7 @@ public record CardController(CardService cardService) implements SimpleCRUD<Inte
     public ResponseDto<CardDto> create(@RequestBody CardDto dto) {
         return this.cardService.create(dto);
     }
+
 
     @Override
     @GetMapping(value = "/get/{id}")

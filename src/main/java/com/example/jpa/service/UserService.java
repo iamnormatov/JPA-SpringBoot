@@ -1,33 +1,30 @@
 package com.example.jpa.service;
 
+import com.example.jpa.dto.ErrorDto;
 import com.example.jpa.dto.ResponseDto;
 import com.example.jpa.dto.SimpleCRUD;
 import com.example.jpa.dto.UserDto;
 import com.example.jpa.model.User;
 import com.example.jpa.repository.UserRepository;
 import com.example.jpa.service.mapper.UserMapper;
+import com.example.jpa.service.validation.UserValidation;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
-public record UserService(UserMapper userMapper, UserRepository userRepository) implements SimpleCRUD<Integer, UserDto> {
+public record UserService(UserMapper userMapper, UserRepository userRepository, UserValidation userValidation) implements SimpleCRUD<Integer, UserDto> {
     @Override
     public ResponseDto<UserDto> create(UserDto dto) {
-        if (this.userRepository.existsByEmail(dto.getEmail())){
+        List<ErrorDto> errors = this.userValidation.validate(dto);
+        if (!errors.isEmpty()){
             return ResponseDto.<UserDto>builder()
                     .code(-3)
-                    .messege(String.format("This email: %s already exist!", dto.getEmail()))
+                    .error(errors)
                     .build();
         }
-        if (checkEmailPattern(dto.getEmail())) {
-            return ResponseDto.<UserDto>builder()
-                    .code(-3)
-                    .messege(String.format("Given %s The email was not valid", dto.getEmail()))
-                    .build();
-        }
-
         try {
             User user = this.userMapper.toEntity(dto);
             user.setCreateAt(LocalDateTime.now());
@@ -48,45 +45,44 @@ public record UserService(UserMapper userMapper, UserRepository userRepository) 
 
     @Override
     public ResponseDto<UserDto> get(Integer entityId) {
-        Optional<User> optional = this.userRepository.findByUserIdAndDeleteAtIsNull(entityId);
-        if (optional.isEmpty()){
-            return ResponseDto.<UserDto>builder()
-                    .messege("User is not found!")
-                    .code(-1)
-                    .build();
-        }
-        return ResponseDto.<UserDto>builder()
-                .success(true)
-                .messege("OK")
-                .data(this.userMapper.toDto(optional.get()))
-                .build();
+        return this.userRepository.findByUserIdAndDeleteAtIsNull(entityId)
+                .map(user -> ResponseDto.<UserDto>builder()
+                            .success(true)
+                            .messege("OK")
+                            .data(this.userMapper.toDto(user))
+                            .build())
+                .orElse(ResponseDto.<UserDto>builder()
+                        .messege("User is not found!")
+                        .code(-1)
+                        .build());
     }
 
     @Override
     public ResponseDto<UserDto> update(Integer entityId, UserDto dto) {
-        Optional<User> optional = this.userRepository.findByUserIdAndDeleteAtIsNull(entityId);
-        if (optional.isEmpty()){
-            return ResponseDto.<UserDto>builder()
-                    .messege("User is not found")
-                    .code(-1)
-                    .build();
-        }
-        if (checkEmailPattern(dto.getEmail())) {
+        List<ErrorDto> errorDto = this.userValidation.validate(dto);
+        if (errorDto.isEmpty()){
             return ResponseDto.<UserDto>builder()
                     .code(-3)
-                    .messege(String.format("Given %s The email was not valid", dto.getEmail()))
+                    .error(errorDto)
                     .build();
         }
         try {
-            User user = optional.get();
-            this.userMapper.updateFromUser(dto, user);
-            user.setUpdateAt(LocalDateTime.now());
-            this.userRepository.save(user);
-            return ResponseDto.<UserDto>builder()
-                    .success(true)
-                    .messege("OK")
-                    .data(this.userMapper.toDto(optional.get()))
-                    .build();
+           return this.userRepository.findByUserIdAndDeleteAtIsNull(entityId)
+                    .map(user -> {
+                        this.userMapper.updateFromUser(dto, user);
+                        user.setUpdateAt(LocalDateTime.now());
+                        this.userRepository.save(user);
+                        return ResponseDto.<UserDto>builder()
+                                .success(true)
+                                .messege("OK")
+                                .data(this.userMapper.toDto(user))
+                                .build();
+                    })
+                    .orElse(ResponseDto.<UserDto>builder()
+                            .messege("User is not found")
+                            .code(-1)
+                            .build()
+                    );
         }catch (Exception e){
             return ResponseDto.<UserDto>builder()
                     .messege(String.format("User while saving error %s", e.getMessage()))
@@ -97,33 +93,20 @@ public record UserService(UserMapper userMapper, UserRepository userRepository) 
 
     @Override
     public ResponseDto<UserDto> delete(Integer entityId) {
-        Optional<User> optional = this.userRepository.findByUserIdAndDeleteAtIsNull(entityId);
-        if (optional.isEmpty()){
-            return ResponseDto.<UserDto>builder()
-                    .messege("User is not found")
-                    .code(-1)
-                    .build();
-        }
-        User user = optional.get();
-        user.setDeleteAt(LocalDateTime.now());
-        this.userRepository.save(user);
-        return ResponseDto.<UserDto>builder()
-                .success(true)
-                .messege("OK")
-                .data(this.userMapper.toDto(user))
-                .build();
-    }
-
-    private boolean checkEmailPattern(String email) {
-        if(email != null){
-            String[] array = email.split("@");
-            if (array.length == 2) {
-                return !array[1].equals("gmail.com");
-            } else {
-                return true;
-            }
-        }else {
-            return false;
-        }
+        return this.userRepository.findByUserIdAndDeleteAtIsNull(entityId)
+                .map(user -> {
+                    user.setDeleteAt(LocalDateTime.now());
+                    this.userRepository.save(user);
+                    return ResponseDto.<UserDto>builder()
+                            .success(true)
+                            .messege("OK")
+                            .data(this.userMapper.toDto(user))
+                            .build();
+                })
+                .orElse(ResponseDto.<UserDto>builder()
+                        .messege("User is not found")
+                        .code(-1)
+                        .build()
+                );
     }
 }

@@ -28,7 +28,7 @@ public record CardService(CardMapper cardMapper, CardRepository cardRepository, 
         if (this.userService.get(dto.getUserId()).getData() == null){
             return ResponseDto.<CardDto>builder()
                     .code(-1)
-                    .messege("User is not found")
+                    .message("User is not found")
                     .build();
         }
         try {
@@ -37,12 +37,12 @@ public record CardService(CardMapper cardMapper, CardRepository cardRepository, 
             this.cardRepository.save(card);
             return ResponseDto.<CardDto>builder()
                     .success(true)
-                    .messege("OK")
+                    .message("OK")
                     .data(this.cardMapper.toDto(card))
                     .build();
         }catch (Exception e){
             return ResponseDto.<CardDto>builder()
-                    .messege(String.format("Card while saving error %s", e.getMessage()))
+                    .message(String.format("Card while saving error %s", e.getMessage()))
                     .code(-2)
                     .build();
         }
@@ -53,12 +53,12 @@ public record CardService(CardMapper cardMapper, CardRepository cardRepository, 
         return this.cardRepository.findByCardIdAndDeleteAtIsNull(entityId)
                 .map(card -> ResponseDto.<CardDto>builder()
                         .success(true)
-                        .messege("OK")
+                        .message("OK")
                         .data(this.cardMapper.toDto(card))
                         .build())
                 .orElse(ResponseDto.<CardDto>builder()
                         .code(-1)
-                        .messege("Card is not found")
+                        .message("Card is not found")
                         .build()
                 );
     }
@@ -80,18 +80,18 @@ public record CardService(CardMapper cardMapper, CardRepository cardRepository, 
                         this.cardRepository.save(card);
                         return ResponseDto.<CardDto>builder()
                                 .success(true)
-                                .messege("OK")
+                                .message("OK")
                                 .data(this.cardMapper.toDto(card))
                                 .build();
                     })
                     .orElse(ResponseDto.<CardDto>builder()
-                        .messege("Card is not found!")
+                        .message("Card is not found!")
                         .code(-1)
                         .build()
                     );
         }catch (Exception e){
             return ResponseDto.<CardDto>builder()
-                    .messege(String.format("Card while saving error %s", e.getMessage()))
+                    .message(String.format("Card while saving error %s", e.getMessage()))
                     .code(-2)
                     .build();
         }
@@ -105,12 +105,12 @@ public record CardService(CardMapper cardMapper, CardRepository cardRepository, 
                     this.cardRepository.save(card);
                     return ResponseDto.<CardDto>builder()
                             .success(true)
-                            .messege("OK")
+                            .message("OK")
                             .data(this.cardMapper.toDto(card))
                             .build();
                 })
                 .orElse(ResponseDto.<CardDto>builder()
-                        .messege("Card is not found!")
+                        .message("Card is not found!")
                         .code(-1)
                         .build()
                 );

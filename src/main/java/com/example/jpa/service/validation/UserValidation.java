@@ -13,7 +13,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class UserValidation {
-//    private final UserService userService;
     private final UserRepository userRepository;
 
     public List<ErrorDto> validate(UserDto dto) {
@@ -29,7 +28,6 @@ public class UserValidation {
         } else if (this.userRepository.existsByEmail(dto.getEmail())) {
             list.add(new ErrorDto("email", String.format("This email: %s already exist!", dto.getEmail())));
         }
-
         if (checkEmailPattern(dto.getEmail())) {
             list.add(new ErrorDto("email", String.format("Given %s The email was not valid", dto.getEmail())));
         }
@@ -38,14 +36,14 @@ public class UserValidation {
     }
 
     private boolean checkEmailPattern(String email) {
-        if(email != null){
+        if (email != null) {
             String[] array = email.split("@");
             if (array.length == 2) {
                 return !array[1].equals("gmail.com");
             } else {
                 return true;
             }
-        }else {
+        } else {
             return false;
         }
     }

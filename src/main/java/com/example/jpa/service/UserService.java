@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public record UserService(UserMapper userMapper, UserRepository userRepository, UserValidation userValidation) implements SimpleCRUD<Integer, UserDto> {
@@ -31,12 +30,12 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
             this.userRepository.save(user);
             return ResponseDto.<UserDto>builder()
                     .success(true)
-                    .messege("OK")
+                    .message("OK")
                     .data(this.userMapper.toDto(user))
                     .build();
         }catch (Exception e){
             return ResponseDto.<UserDto>builder()
-                    .messege(String.format("User while saving error %s", e.getMessage()))
+                    .message(String.format("User while saving error %s", e.getMessage()))
                     .code(-2)
                     .build();
 
@@ -48,11 +47,11 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
         return this.userRepository.findByUserIdAndDeleteAtIsNull(entityId)
                 .map(user -> ResponseDto.<UserDto>builder()
                             .success(true)
-                            .messege("OK")
+                            .message("OK")
                             .data(this.userMapper.toDto(user))
                             .build())
                 .orElse(ResponseDto.<UserDto>builder()
-                        .messege("User is not found!")
+                        .message("User is not found!")
                         .code(-1)
                         .build());
     }
@@ -74,18 +73,18 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
                         this.userRepository.save(user);
                         return ResponseDto.<UserDto>builder()
                                 .success(true)
-                                .messege("OK")
+                                .message("OK")
                                 .data(this.userMapper.toDto(user))
                                 .build();
                     })
                     .orElse(ResponseDto.<UserDto>builder()
-                            .messege("User is not found")
+                            .message("User is not found")
                             .code(-1)
                             .build()
                     );
         }catch (Exception e){
             return ResponseDto.<UserDto>builder()
-                    .messege(String.format("User while saving error %s", e.getMessage()))
+                    .message(String.format("User while saving error %s", e.getMessage()))
                     .code(-2)
                     .build();
         }
@@ -99,12 +98,12 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
                     this.userRepository.save(user);
                     return ResponseDto.<UserDto>builder()
                             .success(true)
-                            .messege("OK")
+                            .message("OK")
                             .data(this.userMapper.toDto(user))
                             .build();
                 })
                 .orElse(ResponseDto.<UserDto>builder()
-                        .messege("User is not found")
+                        .message("User is not found")
                         .code(-1)
                         .build()
                 );

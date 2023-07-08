@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "file")
+@Entity
+@Table(name = "file_model")
 public class FileModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,5 +22,4 @@ public class FileModel {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
-
 }

@@ -10,7 +10,16 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "new-users")
+@Table(name = "new-users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "names", columnNames = "name"),
+                @UniqueConstraint(name = "ages", columnNames = "age")
+        },
+        indexes = {
+                @Index(name = "ix_emails", columnList = "email"),
+                @Index(name = "ix_ages", columnList = "age")
+        }
+)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

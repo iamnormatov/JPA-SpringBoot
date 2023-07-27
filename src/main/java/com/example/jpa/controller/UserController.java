@@ -4,6 +4,7 @@ import com.example.jpa.dto.ResponseDto;
 import com.example.jpa.dto.SimpleCRUD;
 import com.example.jpa.dto.UserDto;
 import com.example.jpa.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public record UserController(UserService userService) implements SimpleCRUD<Integer, UserDto> {
     @Override
     @PostMapping(value = "/create")
-    public ResponseDto<UserDto> create(@RequestBody UserDto dto) {
+    public ResponseDto<UserDto> create(@RequestBody @Valid UserDto dto) {
         return this.userService.create(dto);
     }
 

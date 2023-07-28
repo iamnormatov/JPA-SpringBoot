@@ -5,7 +5,10 @@ import com.example.jpa.dto.SimpleCRUD;
 import com.example.jpa.dto.UserDto;
 import com.example.jpa.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "user")
@@ -32,5 +35,15 @@ public record UserController(UserService userService) implements SimpleCRUD<Inte
     @DeleteMapping(value = "/delete/{id}")
     public ResponseDto<UserDto> delete(@PathVariable(value = "id") Integer entityId) {
         return this.userService.delete(entityId);
+    }
+
+    @GetMapping(value = "/get-all")
+    public ResponseDto<List<UserDto>> getAllUsers(){
+        return this.userService.getAllUsers();
+    }
+
+    @GetMapping(value = "/get-all-page")
+    public ResponseDto<Page<UserDto>> fetAllPageUsers(@RequestParam Integer page, @RequestParam Integer size){
+        return this.userService.getAllPageUsers(page, size);
     }
 }

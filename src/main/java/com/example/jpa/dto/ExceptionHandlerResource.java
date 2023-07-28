@@ -11,18 +11,20 @@ public class ExceptionHandlerResource {
     @ExceptionHandler
     public ResponseEntity<ResponseDto<Void>> methodArgumentNotValidException(MethodArgumentNotValidException e) {
         return ResponseEntity.badRequest().body(ResponseDto.<Void>builder()
-                        .code(-3)
-                        .message("Validation Error")
-                        .error(e.getBindingResult()
-                                .getFieldErrors()
-                                .stream()
-                                .map(fieldError -> {
-                                    String field = fieldError.getField();
-                                    String message = fieldError.getDefaultMessage();
-                                    String rejectionValue = String.valueOf(fieldError.getRejectedValue());
-                                    return new ErrorDto(field, String.format("message :: %s, rejection :: %s", message, rejectionValue));
-                                }).toList())
+                .code(-3)
+                .message("Validation error!")
+                .error(e.getBindingResult()
+                        .getFieldErrors()
+                        .stream()
+                        .map(fieldError -> {
+                            String field = fieldError.getField();
+                            String message = fieldError.getDefaultMessage();
+                            String rejection = String.valueOf(fieldError.getRejectedValue());
+                            return new ErrorDto(field, String.format("message :: %s, rejection :: %s", message, rejection));
+                        }).toList())
                 .build());
-
     }
+
 }
+
+

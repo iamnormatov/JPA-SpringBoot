@@ -8,6 +8,9 @@ import com.example.jpa.model.User;
 import com.example.jpa.repository.UserRepository;
 import com.example.jpa.service.mapper.UserMapper;
 import com.example.jpa.service.validation.UserValidation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -107,5 +110,36 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
                         .code(-1)
                         .build()
                 );
+    }
+
+    public ResponseDto<List<UserDto>> getAllUsers() {
+        List<User> userList = this.userRepository.findAllByDeleteAtIsNull();
+        if (userList.isEmpty()){
+            return ResponseDto.<List<UserDto>>builder()
+                    .code(-1)
+                    .message("Users are not found!")
+                    .build();
+        }
+        return ResponseDto.<List<UserDto>>builder()
+                .success(true)
+                .message("OK")
+                .data(userList.stream().map(this.userMapper::toDto).toList())
+                .build();
+    }
+
+
+    public ResponseDto<Page<UserDto>> getAllPageUsers(Integer page, Integer size) {
+        Page<User> userPage = this.userRepository.findAllByDeleteAtIsNull(PageRequest.of(page, size));
+        if (userPage.isEmpty()){
+            return ResponseDto.<Page<UserDto>>builder()
+                    .code(-1)
+                    .message("Users are not found")
+                    .build();
+        }
+        return ResponseDto.<Page<UserDto>>builder()
+                .success(true)
+                .message("OK")
+                .data(userPage.map(this.userMapper::toDto))
+                .build();
     }
 }

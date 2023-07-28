@@ -10,14 +10,12 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "new-users",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "names", columnNames = "name"),
-                @UniqueConstraint(name = "ages", columnNames = "age")
-        },
+@Table(name = "new_users",
+//        uniqueConstraints = {
+//                @UniqueConstraint(name = "names", columnNames = "name")
+//        },
         indexes = {
-                @Index(name = "ix_emails", columnList = "email"),
-                @Index(name = "ix_ages", columnList = "age")
+                @Index(name = "ix_age", columnList = "age")
         }
 )
 public class User {

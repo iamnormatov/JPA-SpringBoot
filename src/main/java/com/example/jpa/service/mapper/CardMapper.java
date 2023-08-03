@@ -5,9 +5,6 @@ import com.example.jpa.model.Card;
 import com.example.jpa.service.UserService;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
 
 @Mapper(componentModel = "spring")
 public abstract class CardMapper {

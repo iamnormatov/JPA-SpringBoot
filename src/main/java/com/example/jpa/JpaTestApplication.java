@@ -10,8 +10,4 @@ public class JpaTestApplication {
         SpringApplication.run(JpaTestApplication.class, args);
     }
 
-//    public void result(){
-//        System.out.println("Azzakoo");
-//    }
-
 }

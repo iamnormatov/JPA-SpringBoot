@@ -10,18 +10,22 @@ import com.example.jpa.service.mapper.UserMapper;
 import com.example.jpa.service.validation.UserValidation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
-public record UserService(UserMapper userMapper, UserRepository userRepository, UserValidation userValidation) implements SimpleCRUD<Integer, UserDto> {
+public record UserService(UserMapper userMapper,
+                          UserRepository userRepository,
+                          UserValidation userValidation) implements SimpleCRUD<Integer, UserDto> {
+
     @Override
     public ResponseDto<UserDto> create(UserDto dto) {
         List<ErrorDto> errors = this.userValidation.validate(dto);
-        if (!errors.isEmpty()){
+        if (!errors.isEmpty()) {
             return ResponseDto.<UserDto>builder()
                     .code(-3)
                     .error(errors)
@@ -36,7 +40,7 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
                     .message("OK")
                     .data(this.userMapper.toDto(user))
                     .build();
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseDto.<UserDto>builder()
                     .message(String.format("User while saving error %s", e.getMessage()))
                     .code(-2)
@@ -47,12 +51,12 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
 
     @Override
     public ResponseDto<UserDto> get(Integer entityId) {
-        return this.userRepository.findByUserIdAndDeleteAtIsNull(entityId)
+        return this.userRepository.getUserById(entityId)
                 .map(user -> ResponseDto.<UserDto>builder()
-                            .success(true)
-                            .message("OK")
-                            .data(this.userMapper.toDto(user))
-                            .build())
+                        .success(true)
+                        .message("OK")
+                        .data(this.userMapper.toDto(user))
+                        .build())
                 .orElse(ResponseDto.<UserDto>builder()
                         .message("User is not found!")
                         .code(-1)
@@ -62,14 +66,14 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
     @Override
     public ResponseDto<UserDto> update(Integer entityId, UserDto dto) {
         List<ErrorDto> errorDto = this.userValidation.validate(dto);
-        if (errorDto.isEmpty()){
+        if (errorDto.isEmpty()) {
             return ResponseDto.<UserDto>builder()
                     .code(-3)
                     .error(errorDto)
                     .build();
         }
         try {
-           return this.userRepository.findByUserIdAndDeleteAtIsNull(entityId)
+            return this.userRepository.getUserById(entityId)
                     .map(user -> {
                         this.userMapper.updateFromUser(dto, user);
                         user.setUpdateAt(LocalDateTime.now());
@@ -85,7 +89,7 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
                             .code(-1)
                             .build()
                     );
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseDto.<UserDto>builder()
                     .message(String.format("User while saving error %s", e.getMessage()))
                     .code(-2)
@@ -95,7 +99,7 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
 
     @Override
     public ResponseDto<UserDto> delete(Integer entityId) {
-        return this.userRepository.findByUserIdAndDeleteAtIsNull(entityId)
+        return this.userRepository.getUserById(entityId)
                 .map(user -> {
                     user.setDeleteAt(LocalDateTime.now());
                     this.userRepository.save(user);
@@ -114,7 +118,7 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
 
     public ResponseDto<List<UserDto>> getAllUsers() {
         List<User> userList = this.userRepository.findAllByDeleteAtIsNull();
-        if (userList.isEmpty()){
+        if (userList.isEmpty()) {
             return ResponseDto.<List<UserDto>>builder()
                     .code(-1)
                     .message("Users are not found!")
@@ -130,7 +134,7 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
 
     public ResponseDto<Page<UserDto>> getAllPageUsers(Integer page, Integer size) {
         Page<User> userPage = this.userRepository.findAllByDeleteAtIsNull(PageRequest.of(page, size));
-        if (userPage.isEmpty()){
+        if (userPage.isEmpty()) {
             return ResponseDto.<Page<UserDto>>builder()
                     .code(-1)
                     .message("Users are not found")
@@ -141,5 +145,62 @@ public record UserService(UserMapper userMapper, UserRepository userRepository, 
                 .message("OK")
                 .data(userPage.map(this.userMapper::toDto))
                 .build();
+    }
+
+    public ResponseDto<List<UserDto>> searchUserByName(String value) {
+        List<User> userList = this.userRepository.searchUserByName(value);
+        if (userList.isEmpty()) {
+            return ResponseDto.<List<UserDto>>builder()
+                    .code(-1)
+                    .message("Users are not found")
+                    .build();
+        }
+        return ResponseDto.<List<UserDto>>builder()
+                .success(true)
+                .message("OK")
+                .data(userList.stream().map(this.userMapper::toDto).toList())
+                .build();
+    }
+
+    public ResponseDto<Page<UserDto>> searchAllUserByValue(Integer page, Integer size, String value) {
+        return Optional.ofNullable(this.userRepository.searchAllUserByValue(PageRequest.of(page, size), value))
+                .map(users -> ResponseDto.<Page<UserDto>>builder()
+                        .success(true)
+                        .message("OK")
+                        .data(users.map(this.userMapper::toDto))
+                        .build()
+                )
+                .orElse(ResponseDto.<Page<UserDto>>builder()
+                        .code(-1)
+                        .message("Users are not found")
+                        .build()
+                );
+    }
+
+    public ResponseDto<Page<UserDto>> getAllUserByBasicSearch (Map<String, String> params){
+        int page = 0, size = 10;
+        if (params.containsKey("page")){
+            page = Integer.parseInt(params.get("page"));
+        }
+        if (params.containsKey("size")){
+            size = Integer.parseInt(params.get("size"));
+        }
+       return Optional.ofNullable(this.userRepository.findAllUserByParams(
+                params.get("id") == null ? null : Integer.valueOf(params.get("id")),
+                params.get("n"), params.get("s"),
+                params.get("a"), params.get("e"),
+                params.get("p"), PageRequest.of(page, size)
+        ))
+                .map(users1 -> ResponseDto.<Page<UserDto>>builder()
+                        .success(true)
+                        .message("OK")
+                        .data(users1.map(this.userMapper::toDto))
+                        .build()
+                )
+                .orElse(ResponseDto.<Page<UserDto>>builder()
+                        .code(-1)
+                        .message(String.format("User with %s params are not found", params))
+                        .build()
+                );
     }
 }

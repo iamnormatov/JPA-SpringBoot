@@ -3,12 +3,16 @@ package com.example.jpa.controller;
 import com.example.jpa.dto.ResponseDto;
 import com.example.jpa.dto.SimpleCRUD;
 import com.example.jpa.dto.UserDto;
+import com.example.jpa.model.User;
 import com.example.jpa.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "user")
@@ -45,5 +49,20 @@ public record UserController(UserService userService) implements SimpleCRUD<Inte
     @GetMapping(value = "/get-all-page")
     public ResponseDto<Page<UserDto>> fetAllPageUsers(@RequestParam Integer page, @RequestParam Integer size){
         return this.userService.getAllPageUsers(page, size);
+    }
+
+    @GetMapping(value = "/search-all-name")
+    public ResponseDto<List<UserDto>> searchUserByName(@RequestParam String value){
+        return this.userService.searchUserByName(value);
+    }
+
+    @GetMapping(value = "/search-by-user-page")
+    public ResponseDto<Page<UserDto>> searchAllUserByValue(@RequestParam Integer page, @RequestParam Integer size, @RequestParam String value){
+        return this.userService.searchAllUserByValue(page, size, value);
+    }
+
+    @GetMapping(value = "/basic-search")
+    public ResponseDto<Page<UserDto>> getAllUserByBasicSearch(@RequestParam Map<String, String> params){
+        return this.userService.getAllUserByBasicSearch(params);
     }
 }

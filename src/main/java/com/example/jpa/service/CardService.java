@@ -14,7 +14,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public record CardService(CardMapper cardMapper, CardRepository cardRepository, UserService userService, CardValidation cardValidation) implements SimpleCRUD<Integer, CardDto> {
+public record CardService(CardMapper cardMapper,
+                          CardRepository cardRepository,
+                          UserService userService,
+                          CardValidation cardValidation) implements SimpleCRUD<Integer, CardDto> {
 
     @Override
     public ResponseDto<CardDto> create(CardDto dto) {

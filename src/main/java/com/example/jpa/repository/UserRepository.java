@@ -43,13 +43,19 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                     "from User as u where u.email = :email")
     boolean existsByEmail(@Param(value = "email") String email);
 
-    @Query(name = "findAllUserParams")
+    @Query(value = "select u from User as u  " +
+            "where coalesce(:id, u.userId) = u.userId " +
+            "and coalesce(:n, u.name) = u.name " +
+            "and coalesce(:s, u.surname) = u.surname  " +
+            "and coalesce(:e, u.email) = u.email " +
+            "and coalesce(:p, u.password) = u.password " +
+            "and coalesce(:a, u.age) = u.age ")
     Page<User> findAllUserByParams(
             @Param(value = "id") Integer id,
             @Param(value = "n") String name,
             @Param(value = "s") String surname,
-            @Param(value = "a") String age,
             @Param(value = "e") String email,
             @Param(value = "p") String password,
+            @Param(value = "a") Integer age,
             Pageable pageable);
 }

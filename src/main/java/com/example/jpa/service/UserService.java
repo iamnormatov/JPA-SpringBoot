@@ -177,30 +177,27 @@ public record UserService(UserMapper userMapper,
                 );
     }
 
-    public ResponseDto<Page<UserDto>> getAllUserByBasicSearch (Map<String, String> params){
+    public ResponseDto<Page<UserDto>> getAllUserByBasicSearch(Map<String, String> params) {
         int page = 0, size = 10;
-        if (params.containsKey("page")){
+        if (params.containsKey("page")) {
             page = Integer.parseInt(params.get("page"));
         }
-        if (params.containsKey("size")){
+        if (params.containsKey("size")) {
             size = Integer.parseInt(params.get("size"));
         }
-       return Optional.ofNullable(this.userRepository.findAllUserByParams(
-                params.get("id") == null ? null : Integer.valueOf(params.get("id")),
+
+        Page<User> users = this.userRepository.findAllUserByParams(
+                params.get("id") == null ? null : Integer.parseInt(params.get("id")),
                 params.get("n"), params.get("s"),
-                params.get("a"), params.get("e"),
-                params.get("p"), PageRequest.of(page, size)
-        ))
-                .map(users1 -> ResponseDto.<Page<UserDto>>builder()
-                        .success(true)
-                        .message("OK")
-                        .data(users1.map(this.userMapper::toDto))
-                        .build()
-                )
-                .orElse(ResponseDto.<Page<UserDto>>builder()
-                        .code(-1)
-                        .message(String.format("User with %s params are not found", params))
-                        .build()
-                );
+                params.get("e"), params.get("p"),
+                params.get("a") == null ? null : Integer.parseInt(params.get("a")),
+                PageRequest.of(page, size)
+        );
+
+        return ResponseDto.<Page<UserDto>>builder()
+                .success(true)
+                .message("OK")
+                .data(users.map(this.userMapper::toDto))
+                .build();
     }
 }

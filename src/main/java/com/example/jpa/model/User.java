@@ -16,19 +16,9 @@ import java.util.Set;
 //        indexes = {
 //                @Index(name = "ix_age", columnList = "age")
 //        }
-    )
+)
 @NamedQueries(value = {
         @NamedQuery(name = "searchByName", query = "select u from User as u where u.name like concat(:val, '%') order by u.userId asc"),
-        @NamedQuery(name = "findAllByBasicSearch", query = "select u " +
-                "from User as u  " +
-                "where coalesce(:id, u.userId) = u.userId " +
-                "or coalesce(:f, u.name) = u.name " +
-                "or coalesce(:l, u.surname) = u.surname  " +
-                "or coalesce(:e, u.email) = u.email " +
-                "or coalesce(:p, u.password) = u.password " +
-                "or coalesce(:bd, u.age) = u.age " +
-                "and deleteAt is null"
-        )
 })
 
 public class User {

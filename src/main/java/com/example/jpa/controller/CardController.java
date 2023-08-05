@@ -5,7 +5,10 @@ import com.example.jpa.dto.ResponseDto;
 import com.example.jpa.dto.SimpleCRUD;
 import com.example.jpa.service.CardService;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "card")
@@ -33,6 +36,12 @@ public record CardController(CardService cardService) implements SimpleCRUD<Inte
     @DeleteMapping(value = "/delete/{id}")
     public ResponseDto<CardDto> delete(@PathVariable(name = "id") Integer entityId) {
         return this.cardService.delete(entityId);
+    }
+
+
+    @GetMapping(value = "/search-advanced-card")
+    public ResponseDto<Page<CardDto>> findAllCardByAdvance(@RequestParam Map<String, String> params){
+        return this.cardService.findAllCardByAdvance(params);
     }
 
 }

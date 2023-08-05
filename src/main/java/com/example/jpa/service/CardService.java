@@ -8,27 +8,32 @@ import com.example.jpa.model.Card;
 import com.example.jpa.repository.CardRepository;
 import com.example.jpa.service.mapper.CardMapper;
 import com.example.jpa.service.validation.CardValidation;
+import com.example.jpa.util.CardRepositoryImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public record CardService(CardMapper cardMapper,
                           CardRepository cardRepository,
                           UserService userService,
-                          CardValidation cardValidation) implements SimpleCRUD<Integer, CardDto> {
+                          CardValidation cardValidation,
+                          CardRepositoryImpl cardRepositoryImpl) implements SimpleCRUD<Integer, CardDto> {
 
     @Override
     public ResponseDto<CardDto> create(CardDto dto) {
         List<ErrorDto> error = this.cardValidation.validate(dto);
-        if (!error.isEmpty()){
+        if (!error.isEmpty()) {
             return ResponseDto.<CardDto>builder()
                     .code(-3)
                     .error(error)
                     .build();
         }
-        if (this.userService.get(dto.getUserId()).getData() == null){
+        if (this.userService.get(dto.getUserId()).getData() == null) {
             return ResponseDto.<CardDto>builder()
                     .code(-1)
                     .message("User is not found")
@@ -43,7 +48,7 @@ public record CardService(CardMapper cardMapper,
                     .message("OK")
                     .data(this.cardMapper.toDto(card))
                     .build();
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseDto.<CardDto>builder()
                     .message(String.format("Card while saving error %s", e.getMessage()))
                     .code(-2)
@@ -69,14 +74,14 @@ public record CardService(CardMapper cardMapper,
     @Override
     public ResponseDto<CardDto> update(Integer entityId, CardDto dto) {
         List<ErrorDto> error = this.cardValidation.validate(dto);
-        if (!error.isEmpty()){
+        if (!error.isEmpty()) {
             return ResponseDto.<CardDto>builder()
                     .code(-3)
                     .error(error)
                     .build();
         }
         try {
-           return this.cardRepository.findByCardIdAndDeleteAtIsNull(entityId)
+            return this.cardRepository.findByCardIdAndDeleteAtIsNull(entityId)
                     .map(card -> {
                         card.setUpdateAt(LocalDateTime.now());
                         this.cardMapper.updateFromCard(dto, card);
@@ -88,11 +93,11 @@ public record CardService(CardMapper cardMapper,
                                 .build();
                     })
                     .orElse(ResponseDto.<CardDto>builder()
-                        .message("Card is not found!")
-                        .code(-1)
-                        .build()
+                            .message("Card is not found!")
+                            .code(-1)
+                            .build()
                     );
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseDto.<CardDto>builder()
                     .message(String.format("Card while saving error %s", e.getMessage()))
                     .code(-2)
@@ -102,7 +107,7 @@ public record CardService(CardMapper cardMapper,
 
     @Override
     public ResponseDto<CardDto> delete(Integer entityId) {
-       return this.cardRepository.findByCardIdAndDeleteAtIsNull(entityId)
+        return this.cardRepository.findByCardIdAndDeleteAtIsNull(entityId)
                 .map(card -> {
                     card.setDeleteAt(LocalDateTime.now());
                     this.cardRepository.save(card);
@@ -115,6 +120,22 @@ public record CardService(CardMapper cardMapper,
                 .orElse(ResponseDto.<CardDto>builder()
                         .message("Card is not found!")
                         .code(-1)
+                        .build()
+                );
+    }
+
+    public ResponseDto<Page<CardDto>> findAllCardByAdvance(Map<String, String> params) {
+        return Optional.of(this.cardRepositoryImpl.searchUserByMoreParams(params)
+                        .map(this.cardMapper::toDto))
+                .map(card -> ResponseDto.<Page<CardDto>>builder()
+                        .success(true)
+                        .message("OK")
+                        .data(card)
+                        .build()
+                )
+                .orElse(ResponseDto.<Page<CardDto>>builder()
+                        .code(-1)
+                        .message("Card are not found")
                         .build()
                 );
     }

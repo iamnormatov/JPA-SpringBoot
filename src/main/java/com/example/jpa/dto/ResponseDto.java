@@ -12,7 +12,7 @@ import java.util.List;
 public class ResponseDto<T> {
     private boolean success;
     private String message;
-    private Integer code;
+    private int code;
     private T data;
     private List<ErrorDto> error;
 }

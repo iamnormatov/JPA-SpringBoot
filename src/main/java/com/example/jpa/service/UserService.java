@@ -24,13 +24,13 @@ public record UserService(UserMapper userMapper,
 
     @Override
     public ResponseDto<UserDto> create(UserDto dto) {
-        List<ErrorDto> errors = this.userValidation.validate(dto);
-        if (!errors.isEmpty()) {
-            return ResponseDto.<UserDto>builder()
-                    .code(-3)
-                    .error(errors)
-                    .build();
-        }
+//        List<ErrorDto> errors = this.userValidation.validate(dto);
+//        if (!errors.isEmpty()) {
+//            return ResponseDto.<UserDto>builder()
+//                    .code(-3)
+//                    .error(errors)
+//                    .build();
+//        }
         try {
             User user = this.userMapper.toEntity(dto);
             user.setCreateAt(LocalDateTime.now());
@@ -65,13 +65,13 @@ public record UserService(UserMapper userMapper,
 
     @Override
     public ResponseDto<UserDto> update(Integer entityId, UserDto dto) {
-        List<ErrorDto> errorDto = this.userValidation.validate(dto);
-        if (errorDto.isEmpty()) {
-            return ResponseDto.<UserDto>builder()
-                    .code(-3)
-                    .error(errorDto)
-                    .build();
-        }
+//        List<ErrorDto> errorDto = this.userValidation.validate(dto);
+//        if (errorDto.isEmpty()) {
+//            return ResponseDto.<UserDto>builder()
+//                    .code(-3)
+//                    .error(errorDto)
+//                    .build();
+//        }
         try {
             return this.userRepository.getUserById(entityId)
                     .map(user -> {
@@ -199,5 +199,9 @@ public record UserService(UserMapper userMapper,
                 .message("OK")
                 .data(users.map(this.userMapper::toDto))
                 .build();
+    }
+
+    public int summaToNumber(int a, int b){
+        return a + b;
     }
 }

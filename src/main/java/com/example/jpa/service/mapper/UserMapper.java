@@ -17,8 +17,8 @@ public abstract class UserMapper {
 
     public abstract UserDto toDto(User user);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    public abstract void updateFromUser(UserDto userDto, @MappingTarget User user);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, resultType = User.class)
+    public abstract User updateFromUser(UserDto userDto, @MappingTarget User user);
 
 //    public User toEntity(UserDto userDto){
 //        User user = new User();

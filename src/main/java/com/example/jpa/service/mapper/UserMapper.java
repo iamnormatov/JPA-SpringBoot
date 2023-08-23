@@ -3,16 +3,18 @@ package com.example.jpa.service.mapper;
 import com.example.jpa.dto.UserDto;
 import com.example.jpa.model.User;
 import org.mapstruct.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 public abstract class UserMapper {
-
-    @Lazy
-    protected CardMapper cardMapper;
+    @Autowired
+    protected PasswordEncoder passwordEncoder;
 
     @Mapping(target = "card", ignore = true)
+    @Mapping(target = "password", expression = "java(passwordEncoder.encode(userDto.getPassword()))")
     public abstract User toEntity(UserDto userDto);
 
     public abstract UserDto toDto(User user);

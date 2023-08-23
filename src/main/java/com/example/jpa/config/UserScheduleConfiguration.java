@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 @EnableScheduling
 public class UserScheduleConfiguration {
-    @Scheduled(fixedDelay = 2, initialDelay = 3, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelay = 8, initialDelay = 3, timeUnit = TimeUnit.SECONDS)
     private void print(){
         System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()));
     }
